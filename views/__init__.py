@@ -1,0 +1,2 @@
+from views.painel_atendimento import PainelAtendimento
+from views.terminal_cadastro import TerminalCadastro
