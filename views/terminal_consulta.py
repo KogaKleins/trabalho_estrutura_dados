@@ -11,7 +11,7 @@ class TerminalConsulta:
     def __init__(self, sala):
         self.sala = sala
 
-    def pedir_matricula(self):
+    def pedir_matricula(self, matricula=None):
         """
         Solicita a matrícula que se deseja pesquisar e garante que a entrada seja
         um número inteiro válido.
@@ -19,18 +19,21 @@ class TerminalConsulta:
         Retorna:
             int: Número de matrícula digitado e validado.
         """
+
         print("\n" + "=" * 50)
-        print("               CONSULTA DE MATRÍCULA              ")
+        print("               PESQUISA DE MATRÍCULA              ")
         print("=" * 50)
 
         while True:
+
+           
             while True:
                 try:
                     valor = int(input("  -> Digite a matrícula do aluno (-1 para sair): "))
                     break
                 except ValueError:
                     print(f"{VERMELHO}[ERRO] Matrícula inválida. Digite um número inteiro.{RESET}")
-
+                            
             self.aluno = busca_binaria(self.sala.sala_aula, valor)
 
             if self.aluno is None and valor != -1:

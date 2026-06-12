@@ -5,6 +5,7 @@ from views.terminal_cadastro import TerminalCadastro
 from views.terminal_consulta import TerminalConsulta
 from views.edicao_cadastro import EdicaoCadastro
 from views.utils import imprime_aluno
+from views.remove_aluno import DeleteAluno
 
 
 class DirecionamentoTarefas:
@@ -94,7 +95,22 @@ class DirecionamentoTarefas:
             self.sala.armazena_operacao(operacao_aluno)
             self.sala.ordena_sala()
             imprime_aluno(consulta_view.aluno)
-            
+
+
+        # Opção 4: Remover aluno
+
+        elif escolha == 4:
+
+            consulta_view = TerminalConsulta(self.sala)
+            consulta_view.pedir_matricula()
+            if consulta_view.aluno is None:
+                return None
+            else:
+                delete_view = DeleteAluno(self.sala, consulta_view.aluno)
+                delete_view.remove_aluno()
+            operacao_aluno = OperacoesAlunos("remover", consulta_view.aluno)
+            self.sala.armazena_operacao(operacao_aluno)
+
         # Opção 5: Encerrar sistema
         elif escolha == 5:
             return -1
