@@ -9,39 +9,41 @@ Sistema interativo de terminal desenvolvido para o gerenciamento de alunos, matr
 O sistema adota o padrão **MVC (Model-View-Controller)**, separando responsabilidades em três camadas bem definidas:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         main.py                             │
-│              (Ponto de entrada — loop principal)            │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   VIEW (views/)                             │
-│                                                             │
-│  painel_atendimento.py  ──►  Menu principal do terminal     │
-│  terminal_cadastro.py   ──►  Entrada de dados de cadastro   │
-│  terminal_consulta.py   ──►  Busca por matrícula            │
-│  edicao_cadastro.py     ──►  Edição de dados do aluno       │
-│  utils.py               ──►  Exibição compartilhada         │
-└──────────────────────────┬──────────────────────────────────┘
-                           │  captura entrada / exibe saída
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│               CONTROLLER (services/)                        │
-│                                                             │
-│  direcionamento_tarefas.py ──► Orquestra o fluxo de dados   │
-│  busca_binaria.py          ──► Algoritmo de busca           │
-│  cores.py                  ──► Constantes de formatação     │
-└──────────────────────────┬──────────────────────────────────┘
-                           │  lê / escreve estado
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   MODEL (models/)                           │
-│                                                             │
-│  aluno.py            ──►  Entidade: dados de um estudante   │
-│  sala.py             ──►  Array de alunos + pilha desfazer  │
-│  operacoes_alunos.py ──►  Registro de operação (pilha)      │
-└─────────────────────────────────────────────────────────────┘
+                      ┌────────────────────────────┐
+                      │          main.py           │
+                      │  Ponto de entrada e loop   │
+                      └─────────────┬──────────────┘
+                                    │
+                                    ▼
+          ┌─────────────────────────────────────────────────────┐
+          │                    VIEW  (views/)                   │
+          │                                                     │
+          │  painel_atendimento.py  →  Menu principal           │
+          │  terminal_cadastro.py   →  Entrada de cadastro      │
+          │  terminal_consulta.py   →  Busca por matrícula      │
+          │  edicao_cadastro.py     →  Edição de dados          │
+          │  remove_aluno.py        →  Confirmação de exclusão  │
+          │  voltar_operacao.py     →  Desfazer operação (Undo) │
+          │  utils.py               →  Exibição compartilhada   │
+          └────────────────────────┬────────────────────────────┘
+                                   │  captura entrada / exibe saída
+                                   ▼
+          ┌─────────────────────────────────────────────────────┐
+          │                CONTROLLER  (services/)              │
+          │                                                     │
+          │  direcionamento_tarefas.py  →  Roteia ações do menu │
+          │  busca_binaria.py           →  Algoritmo de busca   │
+          │  cores.py                   →  Constantes ANSI      │
+          └────────────────────────┬────────────────────────────┘
+                                   │  lê / escreve estado
+                                   ▼
+          ┌─────────────────────────────────────────────────────┐
+          │                   MODEL  (models/)                  │
+          │                                                     │
+          │  aluno.py            →  Entidade: dados do aluno    │
+          │  sala.py             →  Array de alunos + pilha     │
+          │  operacoes_alunos.py →  Registro de operação        │
+          └─────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -59,10 +61,12 @@ Trabalho_SistemaEscolar/
 │   └── operacoes_alunos.py      # Registro de operação para a pilha
 │
 ├── views/
-│   ├── painel_atendimento.py    # Menu principal interativo
+│   ├── painel_atendimento.py    # Menu principal interativo (6 opções)
 │   ├── terminal_cadastro.py     # Captura e valida dados de cadastro
-│   ├── terminal_consulta.py     # Captura matrícula e dispara busca
+│   ├── terminal_consulta.py     # Captura matrícula e dispara busca binária
 │   ├── edicao_cadastro.py       # Captura e valida dados de edição
+│   ├── remove_aluno.py          # Confirmação e remoção de aluno da lista
+│   ├── voltar_operacao.py       # Interface de desfazer (Undo) da última operação
 │   └── utils.py                 # Função utilitária de exibição de aluno
 │
 └── services/
@@ -76,28 +80,33 @@ Trabalho_SistemaEscolar/
 ## Fluxo de Execução
 
 ```
-Início
-  │
-  ▼
-Instanciar Sala, PainelAtendimento, DirecionamentoTarefas
-  │
-  ▼
-┌─────────────────────────┐
-│  Exibir menu principal  │◄──────────────────────────────┐
-└──────────┬──────────────┘                               │
-           │ escolha do usuário                           │ (loop)
-           ▼                                              │
-  DirecionamentoTarefas.direcionar(escolha)               │
-           │                                              │
-    ┌──────┴──────┐                                       │
-    │  escolha=1  │──► Cadastrar alunos ──────────────────┤
-    │  escolha=2  │──► Consultar por matrícula ───────────┤
-    │  escolha=3  │──► Editar dados de aluno ─────────────┘
-    │  escolha=4  │──► (Em desenvolvimento)
-    │  escolha=5  │──► Retorna -1
-    └─────────────┘         │
-                            ▼
-                     Encerramento do sistema
+  Início
+    │
+    ▼
+  Instanciar Sala, PainelAtendimento, DirecionamentoTarefas
+    │
+    ▼                               ┌────────────────────┐
+  ┌─────────────────────────┐       │                    │
+  │   Exibir menu principal │ ◄─────┘  (volta ao menu)   │
+  └────────────┬────────────┘                            │
+               │  usuário digita uma opção               │
+               ▼                                         │
+  ┌──────────────────────────────┐                       │
+  │  DirecionamentoTarefas       │                       │
+  │    .direcionar(escolha)      │                       │
+  └──────────────┬───────────────┘                       │
+                 │                                       │
+        ┌────────┴────────┐                              │
+        │                 │                              │
+   opcao=1 → Cadastrar alunos ──────────────────────────►│
+   opcao=2 → Consultar por matrícula ───────────────────►│
+   opcao=3 → Editar dados do aluno ─────────────────────►│
+   opcao=4 → Remover aluno ─────────────────────────────►│
+   opcao=5 → Desfazer última operação ──────────────────►┘
+   opcao=6 → Retorna -1
+                 │
+                 ▼
+        Encerramento do sistema
 ```
 
 ---
@@ -106,23 +115,33 @@ Instanciar Sala, PainelAtendimento, DirecionamentoTarefas
 
 ### Array (Lista Python)
 Armazenamento principal dos alunos no atributo `sala_aula` da classe `Sala`.  
-Após cada inserção ou edição de matrícula, a lista é reordenada com Bubble Sort para manter a invariante da busca binária.
+Após cada inserção, edição de matrícula ou remoção revertida, a lista é reordenada com Bubble Sort para manter a invariante da busca binária.
 
 ### Pilha de Desfazer (`pilha_desfazer`)
 Pilha implementada sobre lista Python no atributo `pilha_desfazer` da classe `Sala`.  
-Cada operação realizada (cadastro, edição) registra um objeto `OperacoesAlunos` na pilha, permitindo futuramente reverter a última ação via `pop()`.
+Cada operação realizada (cadastro, edição, remoção) registra um objeto `OperacoesAlunos` na pilha via `append()`. A operação de Desfazer retira o elemento do topo via `pop()` (LIFO) e reverte a ação correspondente.
+
+| Tipo da operação | Estado salvo em `OperacoesAlunos`         | Ação de reversão                          |
+|------------------|-------------------------------------------|-------------------------------------------|
+| `"cadastrar"`    | Referência ao aluno inserido              | Remove o aluno da lista                   |
+| `"editar"`       | Cópia manual do aluno antes da edição     | Restaura todos os campos do aluno original|
+| `"remover"`      | Referência ao aluno excluído              | Reinserir o aluno e reordena a lista      |
+
+---
 
 ## Algoritmos
 
 ### Bubble Sort — `Sala.ordena_sala()`
 
-Ordena a lista `sala_aula` em ordem crescente de matrícula após cada inserção ou edição.
+Ordena a lista `sala_aula` em ordem crescente de matrícula após cada inserção em lote, edição de matrícula ou reversão de remoção.  
+Complexidade: **O(n²)**.
 
 ---
 
 ### Busca Binária — `busca_binaria(lista, valor)`
 
-Localiza um aluno pela matrícula em uma lista já ordenada, dividindo o espaço de busca à metade a cada iteração.
+Localiza um aluno pela matrícula em uma lista já ordenada, dividindo o espaço de busca à metade a cada iteração.  
+Complexidade: **O(log n)**.
 
 > Requer que a lista esteja ordenada — garantido pelo Bubble Sort executado após cada modificação.
 

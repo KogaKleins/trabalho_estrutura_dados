@@ -11,7 +11,7 @@ class PainelAtendimento:
         Exibe o menu principal estilizado de atendimento e lê a opção selecionada pelo usuário.
         
         Retorna:
-            int: Código da escolha do usuário validado entre 1 e 5.
+            int: Código da escolha do usuário validado entre 1 e 6.
         """
         print(f"\n{AZUL}+--------------------------------------------------+")
         print("|       PAINEL DE ATENDIMENTO - SECRETARIA        |")
@@ -20,15 +20,16 @@ class PainelAtendimento:
         print(f"  {NEGRITO}2.{RESET} Consultar informações de um aluno")
         print(f"  {NEGRITO}3.{RESET} Atualizar informações de um aluno")
         print(f"  {NEGRITO}4.{RESET} Excluir um aluno")
-        print(f"  {NEGRITO}5.{RESET} Sair do painel de atendimento")
+        print(f"  {NEGRITO}5.{RESET} Voltar Operação")
+        print(f"  {NEGRITO}6.{RESET} Sair do painel de atendimento")
         print(f"{AZUL}----------------------------------------------------{RESET}")
 
         while True:
             try:
                 # Leitura e conversão da escolha
                 escolha = int(input("Digite o número da opção desejada: "))
-                if escolha < 1 or escolha > 5:
-                    print(f"{VERMELHO}[ERRO] Escolha inválida. Digite um número inteiro entre 1 e 5.{RESET}")
+                if escolha < 1 or escolha > 6:
+                    print(f"{VERMELHO}[ERRO] Escolha inválida. Digite um número inteiro entre 1 e 6.{RESET}")
                 else: 
                     return escolha
             except ValueError:

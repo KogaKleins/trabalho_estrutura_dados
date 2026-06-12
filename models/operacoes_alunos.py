@@ -7,17 +7,21 @@ class OperacoesAlunos:
     cadastro, edição ou exclusão de alunos.
 
     Atributos:
-        tipo (str): Tipo da operação realizada. Exemplos: 'cadastrar', 'editar', 'excluir'.
+        tipo (str): Tipo da operação realizada ('cadastrar', 'editar', 'remover').
         aluno (Aluno): Referência ao objeto Aluno sobre o qual a operação foi executada.
+        aluno_antigo (Aluno, opcional): Cópia do objeto Aluno contendo o estado anterior antes de uma edição.
     """
 
-    def __init__(self, tipo, aluno):
+
+    def __init__(self, tipo, aluno, aluno_antigo=None):
         """
-        Inicializa um registro de operação com o tipo e o aluno associado.
+        Inicializa um registro de operação com o tipo, o aluno e a cópia opcional do estado anterior.
 
         Parâmetros:
             tipo (str): Descrição do tipo de operação realizada.
             aluno (Aluno): Objeto Aluno que foi alvo da operação.
+            aluno_antigo (Aluno, opcional): Cópia do objeto Aluno contendo o estado antes de ser editado.
         """
         self.tipo = tipo
         self.aluno = aluno
+        self.aluno_antigo = aluno_antigo

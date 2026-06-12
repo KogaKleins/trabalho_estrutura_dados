@@ -1,11 +1,12 @@
 from models.aluno import Aluno
-from models.sala import Sala
 from models.operacoes_alunos import OperacoesAlunos
 from views.terminal_cadastro import TerminalCadastro
 from views.terminal_consulta import TerminalConsulta
 from views.edicao_cadastro import EdicaoCadastro
 from views.utils import imprime_aluno
 from views.remove_aluno import DeleteAluno
+from views.voltar_operacao import VoltarOperacao
+
 
 
 class DirecionamentoTarefas:
@@ -72,6 +73,15 @@ class DirecionamentoTarefas:
             consulta_view.pedir_matricula()
             if consulta_view.aluno is None:
                 return None
+            
+            # Cópia profunda/manual do aluno antes que qualquer edição ocorra
+            # Isso preserva o estado original na memória para permitir a operação de Desfazer (Undo)
+            aluno_antigo = Aluno(
+                consulta_view.aluno.nome,
+                consulta_view.aluno.idade,
+                consulta_view.aluno.curso,
+                consulta_view.aluno.matricula
+            )
 
             edita_view = EdicaoCadastro(consulta_view.aluno)
             opcao = edita_view.opcao()
@@ -90,8 +100,9 @@ class DirecionamentoTarefas:
             elif opcao == 4:
                 nova_matricula = edita_view.editar_matricula()
                 consulta_view.aluno.matricula = nova_matricula
-
-            operacao_aluno = OperacoesAlunos("editar", consulta_view.aluno)
+            
+            # Cria o registro da operação salvando a referência do aluno modificado e a cópia do estado antigo
+            operacao_aluno = OperacoesAlunos("editar", consulta_view.aluno, aluno_antigo)
             self.sala.armazena_operacao(operacao_aluno)
             self.sala.ordena_sala()
             imprime_aluno(consulta_view.aluno)
@@ -107,10 +118,21 @@ class DirecionamentoTarefas:
                 return None
             else:
                 delete_view = DeleteAluno(self.sala, consulta_view.aluno)
-                delete_view.remove_aluno()
-            operacao_aluno = OperacoesAlunos("remover", consulta_view.aluno)
-            self.sala.armazena_operacao(operacao_aluno)
+                resultado = delete_view.remove_aluno()
 
-        # Opção 5: Encerrar sistema
+            if resultado == 0:
+                # Registra a remoção na pilha de histórico de operações para permitir desfazer
+                operacao_aluno = OperacoesAlunos("remover", consulta_view.aluno)
+                self.sala.armazena_operacao(operacao_aluno)
+            else:
+                return None
+
+        # Opção 5: Voltar operação (Desfazer/Undo)
         elif escolha == 5:
+            # Instancia a interface de desfazer passando a sala ativa e executa o fluxo
+            operacao_voltar = VoltarOperacao(self.sala)
+            operacao_voltar.volta_quem()
+
+        # Opção 6: Encerrar sistema
+        elif escolha == 6:
             return -1

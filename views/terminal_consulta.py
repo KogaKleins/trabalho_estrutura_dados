@@ -11,7 +11,7 @@ class TerminalConsulta:
     def __init__(self, sala):
         self.sala = sala
 
-    def pedir_matricula(self, matricula=None):
+    def pedir_matricula(self):
         """
         Solicita a matrícula que se deseja pesquisar e garante que a entrada seja
         um número inteiro válido.
