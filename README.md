@@ -6,7 +6,7 @@ Sistema interativo de terminal desenvolvido para o gerenciamento de alunos, matr
 
 ## Arquitetura
 
-O sistema adota o padrão **MVC (Model-View-Controller)**, separando responsabilidades em três camadas bem definidas:
+O sistema é inspirado/adota o padrão **MVC (Model-View-Controller)**, separando responsabilidades em três camadas bem definidas:
 
 ```
                       ┌────────────────────────────┐
