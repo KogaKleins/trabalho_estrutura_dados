@@ -6,14 +6,16 @@ inicializar as interfaces de controle e gerenciar o loop principal de atendiment
 """
 
 from models.sala import Sala 
+from models.fila_atendimento import FilaAtendimento
 from views.painel_atendimento import PainelAtendimento
 from services.direcionamento_tarefas import DirecionamentoTarefas
 from services.cores import AZUL, RESET
 
 # Inicialização persistente da sala de aula e interfaces de controle
 sala = Sala()
+fila_atendimento = FilaAtendimento()
 painel_principal = PainelAtendimento()
-direciona = DirecionamentoTarefas(sala)
+direciona = DirecionamentoTarefas(sala, fila_atendimento)
 
 # Loop contínuo do sistema de atendimento
 while True:

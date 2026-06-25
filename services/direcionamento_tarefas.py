@@ -6,6 +6,7 @@ from views.edicao_cadastro import EdicaoCadastro
 from views.utils import imprime_aluno
 from views.remove_aluno import DeleteAluno
 from views.voltar_operacao import VoltarOperacao
+from views.terminal_fila import TerminalFila
 
 
 
@@ -18,11 +19,12 @@ class DirecionamentoTarefas:
         sala (Sala): Instância persistente de Sala que armazena os dados dos alunos.
     """
 
-    def __init__(self, sala):
+    def __init__(self, sala, fila_atendimento):
         """
-        Inicializa o direcionador de tarefas passando a referência da sala de aula.
+        Inicializa o direcionador com a sala e a fila da secretaria.
         """
         self.sala = sala
+        self.fila_atendimento = fila_atendimento
 
     def direcionar(self, escolha):
         """
@@ -133,6 +135,22 @@ class DirecionamentoTarefas:
             operacao_voltar = VoltarOperacao(self.sala)
             operacao_voltar.volta_quem()
 
-        # Opção 6: Encerrar sistema
+        # Opção 6: Entrar na fila de atendimento
         elif escolha == 6:
+            fila_view = TerminalFila()
+            nome, servico = fila_view.solicitar_atendimento()
+            self.fila_atendimento.adicionar(nome, servico)
+            fila_view.confirmar_entrada(self.fila_atendimento.quantidade())
+
+        # Opção 7: Atender a primeira pessoa da fila
+        elif escolha == 7:
+            fila_view = TerminalFila()
+            solicitacao = self.fila_atendimento.atender_proximo()
+            fila_view.exibir_atendimento(
+                solicitacao,
+                self.fila_atendimento.quantidade()
+            )
+
+        # Opção 8: Encerrar sistema
+        elif escolha == 8:
             return -1

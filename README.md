@@ -24,6 +24,7 @@ O sistema é inspirado/adota o padrão **MVC (Model-View-Controller)**, separand
           │  edicao_cadastro.py     →  Edição de dados          │
           │  remove_aluno.py        →  Confirmação de exclusão  │
           │  voltar_operacao.py     →  Desfazer operação (Undo) │
+          │  terminal_fila.py       →  Atendimento da fila      │
           │  utils.py               →  Exibição compartilhada   │
           └────────────────────────┬────────────────────────────┘
                                    │  captura entrada / exibe saída
@@ -42,6 +43,7 @@ O sistema é inspirado/adota o padrão **MVC (Model-View-Controller)**, separand
           │                                                     │
           │  aluno.py            →  Entidade: dados do aluno    │
           │  sala.py             →  Array de alunos + pilha     │
+          │  fila_atendimento.py →  Fila de solicitações        │
           │  operacoes_alunos.py →  Registro de operação        │
           └─────────────────────────────────────────────────────┘
 ```
@@ -58,15 +60,17 @@ Trabalho_SistemaEscolar/
 ├── models/
 │   ├── aluno.py                 # Entidade Aluno (nome, idade, curso, matrícula)
 │   ├── sala.py                  # Gerencia array de alunos e pilha de desfazer
+│   ├── fila_atendimento.py      # Gerencia a fila FIFO da secretaria
 │   └── operacoes_alunos.py      # Registro de operação para a pilha
 │
 ├── views/
-│   ├── painel_atendimento.py    # Menu principal interativo (6 opções)
+│   ├── painel_atendimento.py    # Menu principal interativo (8 opções)
 │   ├── terminal_cadastro.py     # Captura e valida dados de cadastro
 │   ├── terminal_consulta.py     # Captura matrícula e dispara busca binária
 │   ├── edicao_cadastro.py       # Captura e valida dados de edição
 │   ├── remove_aluno.py          # Confirmação e remoção de aluno da lista
 │   ├── voltar_operacao.py       # Interface de desfazer (Undo) da última operação
+│   ├── terminal_fila.py         # Entrada e atendimento de solicitações da fila
 │   └── utils.py                 # Função utilitária de exibição de aluno
 │
 └── services/
@@ -103,7 +107,9 @@ Trabalho_SistemaEscolar/
    opcao=3 → Editar dados do aluno ─────────────────────►│
    opcao=4 → Remover aluno ─────────────────────────────►│
    opcao=5 → Desfazer última operação ──────────────────►┘
-   opcao=6 → Retorna -1
+   opcao=6 → Entrar na fila de atendimento ─────────────►│
+   opcao=7 → Atender próxima pessoa da fila ────────────►│
+   opcao=8 → Retorna -1
                  │
                  ▼
         Encerramento do sistema
@@ -126,6 +132,11 @@ Cada operação realizada (cadastro, edição, remoção) registra um objeto `Op
 | `"cadastrar"`    | Referência ao aluno inserido              | Remove o aluno da lista                   |
 | `"editar"`       | Cópia manual do aluno antes da edição     | Restaura todos os campos do aluno original|
 | `"remover"`      | Referência ao aluno excluído              | Reinserir o aluno e reordena a lista      |
+
+### Fila de Atendimento (`FilaAtendimento`)
+Armazena solicitações de atendimento da secretaria em uma lista Python. Novas
+solicitações entram no final com `append()` e o próximo atendimento é retirado
+do início com `pop(0)`, seguindo a ordem FIFO: primeiro a entrar, primeiro a sair.
 
 ---
 
